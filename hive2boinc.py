@@ -15,7 +15,10 @@ MYSQL_APP = "hive_test"
 RESULTS_DIR = "hive_results"
 
 # script
-db = _mysql.connect(host="localhost", user=MYSQL_USER, password=MYSQL_PASS, database=MYSQL_DB)
+db = _mysql.connect(
+    host="localhost", user=MYSQL_USER, password=MYSQL_PASS, database=MYSQL_DB
+)
+
 
 async def sh(cmd) -> tuple[str, str, int]:
     p = await asyncio.create_subprocess_shell(
@@ -27,25 +30,31 @@ async def sh(cmd) -> tuple[str, str, int]:
     out = err = ""
     async for line in p.stdout:
         decoded = line.decode()
-        print(decoded, end='')
+        print(decoded, end="")
         out += decoded
     async for line in p.stderr:
         decoded = line.decode()
-        print(decoded, end='')
+        print(decoded, end="")
         err += decoded
 
     return out, err, await p.wait()
 
+
 def mysql_run(cmd):
-    return asyncio.run(sh(f"mysql -u {MYSQL_USER} -p{MYSQL_PASS} {MYSQL_DB} -e '{cmd}'"))
+    return asyncio.run(
+        sh(f"mysql -u {MYSQL_USER} -p{MYSQL_PASS} {MYSQL_DB} -e '{cmd}'")
+    )
+
 
 def escape_sq(text):
     return text.replace("'", "\\'")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print("running hive job")
     id = "hive_" + str(uuid.uuid4())
-    db.query(f"""
+    db.query(
+        f"""
                 insert into workunit (
                     create_time, appid, name, batch, 
                     rsc_fpops_est, rsc_fpops_bound, rsc_memory_bound, rsc_disk_bound, rsc_bandwidth_bound, 
@@ -59,7 +68,8 @@ if __name__ == '__main__':
                     0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0.0, 
                     1, 1, 1, 1, 1, 
                     '', 0, 0, 0, 0, 0, 'hive', 1
-                )""")
+                )"""
+    )
     out, err, code = asyncio.run(sh(f"hive run {' '.join(sys.argv[1:])}"))
 
     if "✅  Results accepted. Downloading result..." in out:
@@ -70,12 +80,13 @@ if __name__ == '__main__':
 
         print("job succeeded")
         print(f"IPFS address: {ipfs_addr}")
-        with open(res_out, 'r') as f:
+        with open(res_out, "r") as f:
             print(f.read())
-        
+
         os.makedirs(RESULTS_DIR, exist_ok=True)
         os.rename(res_dir, f"{RESULTS_DIR}/{id}")
-        db.query(f"""
+        db.query(
+            f"""
                     insert into result (
                         create_time, workunitid, appid, name,
                         server_state, client_state, outcome, hostid, userid,
@@ -93,8 +104,11 @@ if __name__ == '__main__':
                         0, 2, 1, 0, 0,
                         0, 0, 0, 0, 0, 0, 0,
                         0.0, 0, 0, 0.0, 0.0, 0.0
-                    )""")
-        db.query(f"update workunit set canonical_resultid = (select id from result where name = '{id}') where name = '{id}'")
+                    )"""
+        )
+        db.query(
+            f"update workunit set canonical_resultid = (select id from result where name = '{id}') where name = '{id}'"
+        )
 
         sys.exit(0)
     else:
