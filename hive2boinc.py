@@ -4,6 +4,9 @@ import os
 import sys
 import uuid
 
+from MySQLdb import _mysql
+
+
 # config
 MYSQL_USER = "boincadm"
 MYSQL_PASS = "boincpass"
@@ -12,6 +15,8 @@ MYSQL_APP = "hive_test"
 RESULTS_DIR = "hive_results"
 
 # script
+db = _mysql.connect(host="localhost", user=MYSQL_USER, passwd=MYSQL_PASS, db=MYSQL_DB)
+
 async def sh(cmd) -> tuple[str, str, int]:
     p = await asyncio.create_subprocess_shell(
         cmd,
@@ -40,7 +45,7 @@ def escape_sq(text):
 if __name__ == '__main__':
     print("running hive job")
     id = "hive_" + str(uuid.uuid4())
-    out, err, code = mysql_run(f"""
+    out, err, code = db.query(f"""
                           insert into workunit (
                             create_time, appid, name, batch, 
                             rsc_fpops_est, rsc_fpops_bound, rsc_memory_bound, rsc_disk_bound, rsc_bandwidth_bound, 
@@ -54,7 +59,7 @@ if __name__ == '__main__':
                             0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0.0, 
                             1, 1, 1, 1, 1, 
                             '', 0, 0, 0, 0, 0, 'hive', 1
-                          );""")
+                          )""")
     out, err, code = asyncio.run(sh(f"hive run {' '.join(sys.argv[1:])}"))
 
     if "✅  Results accepted. Downloading result..." in out:
@@ -69,7 +74,7 @@ if __name__ == '__main__':
             print(f.read())
         
         os.rename(res_dir, f"{RESULTS_DIR}/{id}")
-        out, err, code = mysql_run(f"""
+        out, err, code = db.query(f"""
                           insert into result (
                             create_time, workunitid, appid, name,
                             server_state, client_state, outcome, hostid, userid,
@@ -87,7 +92,7 @@ if __name__ == '__main__':
                             0, 0, 0, 0, 0,
                             0, 2, 1, 0, 0, 0, 0,
                             0.0, 0, 0, 0.0, 0.0, 0.0
-                          );""")
+                          )""")
 
         sys.exit(0)
     else:
