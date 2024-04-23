@@ -94,6 +94,7 @@ if __name__ == '__main__':
                         0, 0, 0, 0, 0, 0, 0,
                         0.0, 0, 0, 0.0, 0.0, 0.0
                     )""")
+        db.query(f"update workunit set canonical_resultid = (select id from result where name = '{id}') where name = '{id}'")
 
         sys.exit(0)
     else:
