@@ -15,7 +15,7 @@ MYSQL_APP = "hive_test"
 RESULTS_DIR = "hive_results"
 
 # script
-db = _mysql.connect(host="localhost", user=MYSQL_USER, password=MYSQL_PASS, db=MYSQL_DB)
+db = _mysql.connect(host="localhost", user=MYSQL_USER, password=MYSQL_PASS, database=MYSQL_DB)
 
 async def sh(cmd) -> tuple[str, str, int]:
     p = await asyncio.create_subprocess_shell(
@@ -45,7 +45,7 @@ def escape_sq(text):
 if __name__ == '__main__':
     print("running hive job")
     id = "hive_" + str(uuid.uuid4())
-    out, err, code = db.query(f"""
+    out = db.query(f"""
                           insert into workunit (
                             create_time, appid, name, batch, 
                             rsc_fpops_est, rsc_fpops_bound, rsc_memory_bound, rsc_disk_bound, rsc_bandwidth_bound, 
@@ -73,8 +73,9 @@ if __name__ == '__main__':
         with open(res_out, 'r') as f:
             print(f.read())
         
+        os.makedirs(RESULTS_DIR, exist_ok=True)
         os.rename(res_dir, f"{RESULTS_DIR}/{id}")
-        out, err, code = db.query(f"""
+        out = db.query(f"""
                           insert into result (
                             create_time, workunitid, appid, name,
                             server_state, client_state, outcome, hostid, userid,
