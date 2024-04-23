@@ -40,12 +40,6 @@ async def sh(cmd) -> tuple[str, str, int]:
     return out, err, await p.wait()
 
 
-def mysql_run(cmd):
-    return asyncio.run(
-        sh(f"mysql -u {MYSQL_USER} -p{MYSQL_PASS} {MYSQL_DB} -e '{cmd}'")
-    )
-
-
 def escape_sq(text):
     return text.replace("'", "\\'")
 
