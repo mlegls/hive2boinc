@@ -15,7 +15,7 @@ MYSQL_APP = "hive_test"
 RESULTS_DIR = "hive_results"
 
 # script
-db = _mysql.connect(host="localhost", user=MYSQL_USER, passwd=MYSQL_PASS, db=MYSQL_DB)
+db = _mysql.connect(host="localhost", user=MYSQL_USER, password=MYSQL_PASS, db=MYSQL_DB)
 
 async def sh(cmd) -> tuple[str, str, int]:
     p = await asyncio.create_subprocess_shell(
