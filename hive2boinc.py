@@ -55,7 +55,7 @@ if __name__ == '__main__':
                             1, 1, 1, 1, 1, 
                             '', 0, 0, 0, 0, 0, 'hive', 1
                           );""")
-    out, err, code = asyncio.run(sh(f"hive run {" ".join(sys.argv[1:])}"))
+    out, err, code = asyncio.run(sh(f"hive run {' '.join(sys.argv[1:])}"))
 
     if "✅  Results accepted. Downloading result..." in out:
         # TODO make less fragile; maybe implement json-mode for hive run
