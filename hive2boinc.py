@@ -11,7 +11,7 @@ from MySQLdb import _mysql
 MYSQL_USER = "boincadm"
 MYSQL_PASS = "boincpass"
 MYSQL_DB = "test"
-MYSQL_APP = "hive_test"
+APP_NAME = "hive_test"
 RESULTS_DIR = "hive_results"
 
 # script
@@ -63,7 +63,7 @@ if __name__ == "__main__":
                     result_template_file, priority, fileset_id, app_version_id, transitioner_flags, size_class, keywords, app_version_num
                 )
                 values (
-                    UNIX_TIMESTAMP(), (select id from app where name = '{MYSQL_APP}'), '{id}', 0, 
+                    UNIX_TIMESTAMP(), (select id from app where name = '{APP_NAME}'), '{id}', 0, 
                     0.0, 0.0, 0.0, 0.0, 0.0, 
                     0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0.0, 
                     1, 1, 1, 1, 1, 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
                         flops_estimate, runtime_outlier, size_class, peak_working_set_size, peak_swap_size, peak_disk_usage
                     )
                     values (
-                        UNIX_TIMESTAMP(), (select id from workunit where name = '{id}'), (select id from app where name = '{MYSQL_APP}'), '{id}',
+                        UNIX_TIMESTAMP(), (select id from workunit where name = '{id}'), (select id from app where name = '{APP_NAME}'), '{id}',
                         5, 5, 1, 0, 0,
                         0, 0, 0, 0.0, 0.0,
                         '<![CDATA[<stderr_txt>{escape_sq(err)}</stderr_txt>]]>',
