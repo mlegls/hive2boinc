@@ -39,7 +39,7 @@ def escape_sq(text):
 
 if __name__ == '__main__':
     print("running hive job")
-    id = "hive_" + uuid.uuid4()
+    id = "hive_" + str(uuid.uuid4())
     out, err, code = mysql_run(f"""
                           insert into workunit (
                             create_time, appid, name, batch, 
