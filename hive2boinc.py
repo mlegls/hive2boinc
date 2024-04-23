@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-import sys
 import asyncio
+import os
+import sys
 import uuid
 
 # config
@@ -33,10 +34,13 @@ async def sh(cmd) -> tuple[str, str, int]:
 def mysql_run(cmd):
     return asyncio.run(sh(f"mysql -u {MYSQL_USER} -p{MYSQL_PASS} {MYSQL_DB} -e '{cmd}'"))
 
+def escape_sq(text):
+    return text.replace("'", "\\'")
+
 if __name__ == '__main__':
     print("running hive job")
-    id = uuid.uuid4()
-    out, err, code = mysql_run("""
+    id = "hive_" + uuid.uuid4()
+    out, err, code = mysql_run(f"""
                           insert into workunit (
                             create_time, appid, name, batch, 
                             rsc_fpops_est, rsc_fpops_bound, rsc_memory_bound, rsc_disk_bound, rsc_bandwidth_bound, 
@@ -45,12 +49,12 @@ if __name__ == '__main__':
                             result_template_file, priority, fileset_id, app_version_id, transitioner_flags, size_class, keywords, app_version_num
                           )
                           values (
-                            UNIX_TIMESTAMP(), (select id from app where name = '{MYSQL_APP}'), 'hive_{id}', 0, 
+                            UNIX_TIMESTAMP(), (select id from app where name = '{MYSQL_APP}'), '{id}', 0, 
                             0.0, 0.0, 0.0, 0.0, 0.0, 
                             0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0.0, 
                             1, 1, 1, 1, 1, 
                             '', 0, 0, 0, 0, 0, 'hive', 1
-                          )""")
+                          );""")
     out, err, code = asyncio.run(sh(f"hive run {" ".join(sys.argv[1:])}"))
 
     if "✅  Results accepted. Downloading result..." in out:
@@ -63,6 +67,27 @@ if __name__ == '__main__':
         print(f"IPFS address: {ipfs_addr}")
         with open(res_out, 'r') as f:
             print(f.read())
+        
+        os.rename(res_dir, f"{RESULTS_DIR}/{id}")
+        out, err, code = mysql_run(f"""
+                          insert into result (
+                            create_time, workunitid, appid, name,
+                            server_state, client_state, outcome, hostid, userid,
+                            report_deadline, sent_time, received_time, cpu_time, elapsed_time,
+                            stderr_out,
+                            batch, file_delete_state, validate_state, claimed_credit, granted_credit,
+                            opaque, random, app_version_num, app_version_id, exit_status, teamid, priority,
+                            flops_estimate, runtime_outlier, size_class, peak_working_set_size, peak_swap_size, peak_disk_usage
+                          )
+                          values (
+                            UNIX_TIMESTAMP(), (select id from workunit where name = '{id}'), (select id from app where name = '{MYSQL_APP}'), '{id}',
+                            5, 5, 1, 0, 0,
+                            0, 0, 0, 0.0, 0.0,
+                            '<![CDATA[<stderr_txt>{escape_sq(err)}</stderr_txt>]]>',
+                            0, 0, 0, 0, 0,
+                            0, 2, 1, 0, 0, 0, 0,
+                            0.0, 0, 0, 0.0, 0.0, 0.0
+                          );""")
 
         sys.exit(0)
     else:
