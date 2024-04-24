@@ -141,4 +141,5 @@ if __name__ == "__main__":
 # - update workunit and result before `hive run` and as it runs, rather than only after
 # - make a boinc user for the public address that attempts compute, and assign credit
 # - correctly implement elapsed time fields
-# - distinguish between error types
+# - distinguish between error conditions, match to boinc error codes
+# - more robust error handling, e.g. on mysql error
