@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
         os.makedirs(RESULTS_DIR, exist_ok=True)
         os.rename(res_dir, f"{RESULTS_DIR}/{id}")
-        
+
         db.query(
             f"""
                     insert into result (
