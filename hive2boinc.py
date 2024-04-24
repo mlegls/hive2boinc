@@ -124,7 +124,7 @@ if __name__ == "__main__":
                         0, 0, 0, 0.0, 0.0,
                         '<![CDATA[<stderr_txt>{escape_sq(err)}</stderr_txt><stdout_txt>{escape_sq(out)}</stdout_txt>]]]>',
                         0, 2, 1, 0, 0,
-                        0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 255, 0, 0,
                         0.0, 0, 0, 0.0, 0.0, 0.0
                     )"""
         )
