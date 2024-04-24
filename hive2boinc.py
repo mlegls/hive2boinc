@@ -79,6 +79,7 @@ if __name__ == "__main__":
 
         os.makedirs(RESULTS_DIR, exist_ok=True)
         os.rename(res_dir, f"{RESULTS_DIR}/{id}")
+        
         db.query(
             f"""
                     insert into result (
@@ -107,6 +108,7 @@ if __name__ == "__main__":
         sys.exit(0)
     else:
         print("job failed")
+
         db.query(
             f"""
                     insert into result (
