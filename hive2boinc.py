@@ -135,3 +135,10 @@ if __name__ == "__main__":
         )
 
         sys.exit(1)
+
+
+# TODO potential improvements
+# - update workunit and result before `hive run` and as it runs, rather than only after
+# - make a boinc user for the public address that attempts compute, and assign credit
+# - correctly implement elapsed time fields
+# - distinguish between error types
